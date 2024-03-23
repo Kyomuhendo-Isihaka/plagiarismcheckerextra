@@ -1,0 +1,186 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shaka pragiarism Checker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" />
+    <link rel="stylesheet" href="{% static 'assets/icons/font-awesome-4.7.0/css/font-awesome.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/w3pro-4.13.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/w3-theme.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/admin-styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/scrollbar.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css'%}" />
+    <link rel="stylesheet" href="{% static 'assets/w3css.css'%}" />
+
+    <style>
+        .image {
+            width: 100px;
+            height: 100px;
+            border-radius: 100%;
+            margin: auto;
+            margin-top: 10px;
+            margin-left: 50px;
+            margin-bottom: 15px;
+            justify-content: center;
+            align-items: center
+        }
+
+        .centered-image {
+            display: flex;
+
+            ;
+
+        }
+    </style>
+</head>
+
+
+<body class="w3-light-grey">
+    <input id="sidebar-control" type="checkbox" class="w3-hide" />
+
+    <div id="app">
+        <div class="w3-top w3-card" style="height: 54px">
+            <div class="w3-flex-bar w3-theme w3-left-align w3-container">
+                <div class="admin-logo w3-bar-item w3-hide-medium w3-hide-small">
+                    <h3 class="pr-4" style="line-height: 2; margin: 0 !important; font-weight: 750">                  
+                            Shaka Plagiarism Checker                       
+                    </h3>
+                </div>
+                <label for="sidebar-control" class="w3-button w3-large w3-opacity-min"><i
+                        class="fa fa-bars"></i></label>
+
+                <div class="w3-container w3-display-container" style="width: 40%">
+                    <div class="w3-display-right w3-padding-small w3-margin-right"
+                        onclick="this.parentNode.children[1].focus()">
+                        <i class="fa fa-search w3-opacity-max"></i>
+                    </div>
+                    <input type="text"
+                        class="w3-input w3-border w3-round w3-small w3-padding-small w3-gray-lighter w3-show-inline-block"
+                        placeholder="Enter keywords" />
+                </div>
+
+                <div class="w3-right">
+                   
+                    <a type="button" class="w3-large w3-opacity-min p-2">
+                        <i class="fa fa-bell"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <nav id="sidebar"
+            class="w3-sidebar w3-top w3-bottom w3-collapse w3-white w3-border-right w3-border-top scrollbar" style="
+          z-index: 3;
+          width: 230px;
+          height: auto;
+          margin-top: 54px;
+          border-color: rgba(0, 0, 0, 0.1) !important;
+        " id="mySidebar">
+            <div class="w3-bar-item w3-border-bottom w3-hide-large" style="padding: 6px 0">
+                <label for="sidebar-control" class="w3-left w3-button w3-large w3-opacity-min"
+                    style="background: white !important"><i class="fa fa-bars"></i></label>
+                <h5 class="" style="line-height: 1; margin: 0 !important; font-weight: 300">
+                    <a href="#" class="w3-button" style="background: white !important">
+                        Shaka Plagiarism Checker
+                    </a>
+                </h5>
+            </div>
+            <div class="w3-bar-block">
+                <div>
+                    <img class="image" src="{% static 'assets/images/1.jpg'%}" alt="" />
+
+                </div>
+
+
+                <p class="text-center bold"><b>Username: {{user.username}}</b></p>
+                <p class="text-center bold"><b>Role: {{user.profile.role}}</b></p>
+
+                <hr>
+                <a href="{% url 'plag:dashboard' %}"
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-bar-chart"></i>&nbsp; Dashboard
+                </a>
+
+                {%if user.is_staff == False%}
+                <a href="{% url 'plag:checkplagiarism'%}"
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-fire"></i>&nbsp;Check Plagiarism
+                </a>
+
+                <a href="{%url 'plag:dictionary'%}"
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-book"></i>&nbsp; Dictionary
+                </a>
+
+                <a href="{%url 'plag:work'%}"
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-table"></i>&nbsp; Work Uploads
+                </a>
+
+                <a href="{%url 'plag:listen'%}"
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-microphone"></i>&nbsp; Reader
+                </a>
+
+                <a href=""
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-bell"></i>&nbsp; Notifications
+                </a>
+                <hr>
+                {%endif%}
+
+                {% if user.is_staff == True %}
+                <a href="{% url 'plag:users' role='Lecturers'%}"
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-user-circle"></i>&nbsp; Lecturers
+                </a>
+                <a href="{% url 'plag:users' role='Students'%}"
+                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fa fa-fw fa-user"></i>&nbsp; Students
+                </a>
+                <hr />
+                <div class="dropdown">
+                    <a href="#" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary dropdown-toggle"
+                        id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-fw fa-sign-in"></i>&nbsp; Registration
+                    </a>
+
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="{%url 'plag:registration' role='Lecturer'%}">Lecturer</a>
+                        <a class="dropdown-item" href="{%url 'plag:registration' role='Student'%}">Student</a>
+                    </div>
+                </div>
+
+
+                {%endif%}
+                <a href="{%url 'plag:profile'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary">
+                    <i class="fa fa-fw fa-user-circle"></i>&nbsp; Profile
+                </a>
+                <a href="{% url 'plag:logout'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary">
+                    <i class="fa fa-fw fa-unlock"></i>&nbsp; Logout
+                </a>
+
+            </div>
+        </nav>
+        <div class="w3-main" style="margin-top: 54px">
+            <div style="padding: 16px 32px">{%block content%} {%endblock%}</div>
+        </div>
+    </div>
+    <script src="{% static 'assets/plugins/chartjs/Chart.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/chartjs/dashboard.js' %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    
+
+</body>
+
+</html>

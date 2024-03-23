@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+
+
+<div style="padding:16px 32px">
+    <div class="w3-padding-32">
+        <div class="w3-auto w-75">
+            <div class="w3-white w3-round w3-margin-bottom w3-border">
+                <div class="w3-padding-large">
+                    <div class="w3-center w3-padding-16">
+                        <p>Register {{role}}</p>
+                    </div>
+                    <form action="{% url 'plag:registration' role=role%}" method="POST">
+                        {%csrf_token%}
+                        <div class="w3-row d-flex w3-margin-bottom">
+                            <input type="text" class="w3-input w3-round w3-border mr-2" name="firstname" placeholder="Firstname">
+                            <input type="text" class="w3-input w3-round w3-border ml-2" name="lastname" placeholder="Lastname">
+                        </div>
+
+                        <div class="w3-margin-bottom">
+                            <input type="text" class="w3-input w3-round w3-border" name="username" placeholder="Enter Your Username" required>
+                        </div>
+                        <div class="w3-margin-bottom">
+                            <input type="text" class="w3-input w3-round w3-border" name="email" placeholder="Enter Your Email" required>
+                        </div>
+                        <div class="w3-margin-bottom">
+                            <input type="password" class="w3-input w3-round w3-border" name="password" placeholder="Enter Password" required>
+                        </div>
+
+                        <div class="w3-margin-bottom">
+                            <input type="password" class="w3-input w3-round w3-border" name="conf_pass" placeholder="Confirm Password" required>
+                        </div>
+
+                        <button type="submit" class="w3-button w3-round w3-margin-bottom w3-primary w3-block">Register</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

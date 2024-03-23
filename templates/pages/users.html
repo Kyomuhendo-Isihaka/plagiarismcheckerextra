@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+
+<div class="w3-col ">
+    <div class="w3-white w3-round w3-margin-bottom w3-border">
+        <header class="w3-padding-large w3-large w3-border-bottom" style="font-weight: 500">{{role}}
+            <input type="text" class="form-control" placeholder="Search by Name or ID">
+        </header>
+        <div class="w3-padding-large">
+
+            <table class="w3-table table-bordered w3-border">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Firstname</th>
+                    <th scope="col">Lastname</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email Address</th>
+                </tr>
+            
+                {% if role == "Lecturers" %}
+                    {% for user in users %}
+                        {% if user.profile.role == "Lecturer" %}
+                            <tr>
+                                <th scope="row">{{ user.id }}</th>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% elif role == "Students" %}
+                    {% for user in users %}
+                        {% if user.profile.role == "Student" %}
+                            <tr>
+                                <th scope="row">{{ user.id }}</th>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.last_name }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5"><h4>No {{ role }}</h4></td>
+                    </tr>
+                {% endif %}
+            </table>
+            
+        </div>
+    </div>
+</div>
+
+{% endblock %}

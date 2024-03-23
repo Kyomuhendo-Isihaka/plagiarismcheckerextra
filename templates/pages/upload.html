@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+
+<div style="padding:16px 32px">
+    <div class="w3-padding-32">
+        <div class="w3-auto w-75">
+            <div class="w3-white w3-round w3-margin-bottom w3-border">
+                <div class="w3-padding-large">
+                    <div class="w3-center w3-padding-16">
+                        <p>Upload Work </p>
+                    </div>
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        {%csrf_token%}
+
+                        <div class="w3-margin-bottom">
+
+                            <label for="" class="d-flex ">Select Subject<select name="subject"
+                                    class="w3-input w3-round w3-border" id="">
+                                    <option value="Course Work">Course Work</option>
+                                    <option value="Research Proposal">Research Proposal</option>
+                                    <option value="Report">Report</option>
+                                </select></label>
+                        </div>
+
+                        <div class="w3-margin-bottom">
+                            choose supervisor/lecturer
+                            <select name="lecturer" id="" class="w3-input w3-round w3-border my-2">
+                                {% for l in lecturers %}
+                                <option value="{{l.user.id}}">{{l.user.first_name}} {{l.user.last_name}}</option>
+                                {%endfor%}
+                            </select>
+
+                        </div>
+
+                        <div class="w3-margin-bottom">
+                            Upload PDF
+                            <input type="file" class="w3-input w3-round w3-border" name="u_file"
+                                placeholder="Enter Password" required>
+                        </div>
+
+                        <button type="submit"
+                            class="w3-button w3-round w3-margin-bottom w3-primary w3-block">Submit</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

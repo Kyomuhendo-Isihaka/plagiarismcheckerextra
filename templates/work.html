@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+    .panel {
+        height: 550px;
+        resize: vertical;
+        overflow: auto;
+
+    }
+</style>
+<header>
+
+    <div class="panel w3-white w3-round w3-margin-bottom w3-border p-3">
+        {%if user.profile.role == "Student" %}
+        <h4 class="text-center">Work Uploads</h4>
+        <a href="{% url 'plag:upload' %}" class="m-3 w3-btn w3-blue">Upload</a>
+        <table class="table table-responsive w3-table table-bordered ">
+            <thead>
+                <tr>
+                    <th>Date of submission</th>
+                    <th>Subject</th>
+                    <th >Lecturer</th>
+                    <th >File</th>
+                    <th >Status</th>
+                    <th >Action</th>
+                </tr>
+            </thead>
+
+            <tr>
+                <td>12-13-2024</td>
+                <td>Course Work</td>
+                <td>Ogwal Awio Kenneth </td>
+                <td><a href="">registration.pdf</a></td>
+                <td>Freshers Ball</td>
+                <td>
+                    <div class="row d-flex">
+                        <a href="#" class="btn"><i class="fa fa-eye text-primary"></i></a>
+                        <a href="#" class="btn"><i class="fa fa-trash text-danger"></i></a>
+                    </div>
+                </td>
+            </tr>
+
+
+
+
+
+
+        </table>
+        {%elif user.profile.role == "Lecturer" %}
+        Lect
+        {%endif%}
+
+    </div>
+</header>
+
+{% endblock %}

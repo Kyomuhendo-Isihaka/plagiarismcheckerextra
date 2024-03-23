@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<style>
+    .panel {
+        overflow: auto;
+        resize: vertical;
+        height: 635px;
+        margin-top: 15px;
+    }
+</style>
+<div class="panel">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-4 col-sm-4">
+                <div class="w3-card-2 w-75 p-3 w3-white w3-center mt-3 " style="border-radius:15px; z-index: 1;">
+                    <p>Similarity</p>
+                    <p style="font-size:25px ;"><b>28 books</b></p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <div class="w3-card-2 w-75 p-3 w3-white w3-center mt-3 " style="border-radius:15px; z-index: 1;">
+                    <p>Percentage</p>
+                    <p style="font-size:25px ;"><b>{{n}}%</b></p>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-4">
+                <div class="w3-card-2 w-75 p-3 w3-center w3-white mt-3 " style="border-radius:15px; z-index: -1;">
+                    <p>Book size</p>
+                    <p style="font-size:25px ;"><b>{{size}} kb</b></p>
+                </div>
+            </div>
+
+        </div>
+
+        <a class="w3-btn w3-blue float-right mt-2 mb-3" href="">Download Report</a><br>
+
+        <h2>Graph</h2>
+        <h2>Related documents</h2>
+        <ul>
+            <li><a href="">References</a></li>
+            <li><a href="">References</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
