@@ -21,35 +21,71 @@
                 <tr>
                     <th>Date of submission</th>
                     <th>Subject</th>
-                    <th >Lecturer</th>
-                    <th >File</th>
-                    <th >Status</th>
-                    <th >Action</th>
+                    <th>Lecturer</th>
+                    <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
 
+            {%for i in workuploads %}
             <tr>
-                <td>12-13-2024</td>
-                <td>Course Work</td>
-                <td>Ogwal Awio Kenneth </td>
-                <td><a href="">registration.pdf</a></td>
-                <td>Freshers Ball</td>
+                <td>{{i.date_uploaded}}</td>
+                <td>{{i.subject}}</td>
+                <td>{{i.lecturer.user.first_name}} {{i.lecturer.user.last_name}}</td>
+                <td><span
+                        class="text-center p-1 m-2 {% if i.status == 'Waiting'%}bg-warning{%else%}bg-success{%endif%} text-white">{{i.status}}</span>
+                </td>
                 <td>
                     <div class="row d-flex">
-                        <a href="#" class="btn"><i class="fa fa-eye text-primary"></i></a>
+                        <a href="{% url 'plag:viewpdf' pdf_file=i.file_name %}" class="w3-btn btn-primary mx-3">View</a>
                         <a href="#" class="btn"><i class="fa fa-trash text-danger"></i></a>
                     </div>
                 </td>
             </tr>
-
-
-
-
+            {%endfor%}
 
 
         </table>
+
         {%elif user.profile.role == "Lecturer" %}
-        Lect
+        <h4 class="text-center">Work Uploads</h4>
+        <table class="table table-responsive w3-table table-bordered ">
+            <thead>
+                <tr>
+                    <th>Date of submission</th>
+                    <th>Subject</th>
+                    <th>Student</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            {% for i in workuploads %}
+              
+            <tr>
+                <td>{{i.date_uploaded}}</td>
+                <td>{{i.subject}}</td>
+                <td>{% for student in students %}
+                    {% if student.pk == i.student %}
+                        {{ student.first_name }} {{ student.last_name }}
+                    {% endif %}
+                {% endfor %} </td>
+                <td><span
+                        class="text-center p-1 m-2 {% if i.status == 'Waiting'%}bg-warning{%else%}bg-success{%endif%} text-white">{{i.status}}</span>
+                </td>
+
+                <td>
+                    <div class="row d-flex">
+                        <!-- <a href="#" class="btn btn-success mx-3">Comment</a> -->
+                        <a href="{% url 'plag:viewpdf' pdf_file=i.file_name %}" class="w3-btn btn-primary mx-3">Review</a>
+                        <!-- <a href="#" class="btn"><i class="fa fa-eye text-primary"></i></a> -->
+
+                    </div>
+                </td>
+            </tr>
+            {%endfor%}
+
+        </table>
         {%endif%}
 
     </div>

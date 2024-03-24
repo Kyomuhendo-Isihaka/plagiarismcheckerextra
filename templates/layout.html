@@ -45,16 +45,16 @@
     <input id="sidebar-control" type="checkbox" class="w3-hide" />
 
     <div id="app">
-        <div class="w3-top w3-card" style="height: 54px">
+        <div class="w3-top w3- w3-white" style="height: 55px">
             <div class="w3-flex-bar w3-theme w3-left-align w3-container">
                 <div class="admin-logo w3-bar-item w3-hide-medium w3-hide-small">
                     <h3 class="pr-4" style="line-height: 2; margin: 0 !important; font-weight: 750">                  
                             Shaka Plagiarism Checker                       
                     </h3>
                 </div>
-                <label for="sidebar-control" class="w3-button w3-large w3-opacity-min"><i
-                        class="fa fa-bars"></i></label>
-
+                <!-- <label for="sidebar-control" class="w3-button w3-large w3-opacity-min"><i
+                        class="fa fa-bars"></i></label> -->
+<!-- 
                 <div class="w3-container w3-display-container" style="width: 40%">
                     <div class="w3-display-right w3-padding-small w3-margin-right"
                         onclick="this.parentNode.children[1].focus()">
@@ -63,7 +63,7 @@
                     <input type="text"
                         class="w3-input w3-border w3-round w3-small w3-padding-small w3-gray-lighter w3-show-inline-block"
                         placeholder="Enter keywords" />
-                </div>
+                </div> -->
 
                 <div class="w3-right">
                    
@@ -100,7 +100,7 @@
 
 
                 <p class="text-center bold"><b>Username: {{user.username}}</b></p>
-                <p class="text-center bold"><b>Role: {{user.profile.role}}</b></p>
+                <p class="text-center bold"><b>({{user.profile.role}})</b></p>
 
                 <hr>
                 <a href="{% url 'plag:dashboard' %}"
@@ -169,6 +169,7 @@
 
             </div>
         </nav>
+
         <div class="w3-main" style="margin-top: 54px">
             <div style="padding: 16px 32px">{%block content%} {%endblock%}</div>
         </div>

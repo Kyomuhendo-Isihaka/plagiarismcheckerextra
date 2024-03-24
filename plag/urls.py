@@ -18,5 +18,6 @@ urlpatterns = [
 
     path('?/<str:role>/', views.users, name='users'),
 
-    path('upload', views.upload, name='upload')
+    path('upload/', views.upload, name='upload'),
+    path('pdfview/<str:pdf_file>/', views.view_pdf, name='viewpdf'),
    ]

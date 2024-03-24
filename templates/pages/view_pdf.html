@@ -1,0 +1,122 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<style>
+    .panel {
+        overflow: auto;
+        resize: vertical;
+        height: 450px;
+        margin-top: 15px;
+        background: white;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        /* overflow: auto; */
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin-left: 20%;
+        margin-top: 80px;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
+{% if user.profile.role == "Lecturer" %}
+<div class="row">
+    <button id="commentBtn" class="w3-btn btn-primary">Comment</button>
+    <a href="{% url 'plag:results'%}" class="w3-btn mx-3 btn-primary">Check Plagiarism</a>
+</div>
+{%endif%}
+<textarea class="panel w-100 pl-5" readonly>
+    {{pdf_text|safe}}
+</textarea>
+
+<h5>Comments</h5>
+{% if comments %}
+{% for comment in comments %}
+<div class="p-3 my-4 ">
+    <h5>comment ID: {{comment.pk}}</h5>
+    <div class="d-flex">
+    <textarea class="w-100 p-2" rows="5" readonly>
+        {{comment.comment_text}}
+    </textarea>
+    {% if user.profile.role == "Lecturer" %}
+        <a href="#" onclick="return (window.confirm('Are you sure want to delete this Comment'));"><i class="fa fa-trash text-danger p-3"></i></a>
+    {%endif%}
+</div>
+{%endfor%}
+</div>
+{%else%}
+<h4 class="text-center">No Comments Yet</h4>
+{%endif%}
+
+
+
+<div id="commentModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h4>Add Comment</h4>
+        <form id="commentForm" action="#" method="post">
+            {% csrf_token %}
+
+            <textarea name="comment" rows="5" class="form-control"></textarea>
+            <br>
+            <input type="submit" class="w3-btn btn-primary" value="Submit">
+        </form>
+    </div>
+</div>
+
+<script>
+    // Get the modal
+    var modal = document.getElementById("commentModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("commentBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+{% endblock %}

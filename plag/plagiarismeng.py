@@ -5,6 +5,8 @@ import pyttsx3
 import PyPDF2
 import os 
 import threading
+import uuid
+import fitz
 
 speaker = pyttsx3.init()
 
@@ -20,18 +22,38 @@ def speak(words):
     finally:
         speaker.startLoop()
 
+def extract_pdf_text(pdf_file):
+    directory = settings.MEDIA_ROOT
+   
+    if not os.path.isdir(directory):
+        raise ValueError(f"'{directory}' is not a directory.")
 
+    pdf_path = os.path.join(directory, pdf_file)
+    if not os.path.isfile(pdf_path):
+        text = "PDF not found"
+        return text
+        
+
+    doc = fitz.open(pdf_path)
+    text = ""
+    for page in doc:
+        text += page.get_text()
+
+    return text
 
 def upload_file(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and 'u_file' in request.FILES:
         uploaded_file = request.FILES['u_file']
+
+        filename = str(uuid.uuid4()) + os.path.splitext(uploaded_file.name)[1]
         
-        file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.name)
+        file_path = os.path.join(settings.MEDIA_ROOT, filename)
         with open(file_path, 'wb+') as destination:
             for chunk in uploaded_file.chunks():
                 destination.write(chunk)   
         return  file_path
     
+
 def read_pdf(file_path):
     
     try:

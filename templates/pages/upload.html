@@ -12,10 +12,10 @@
                     </div>
                     <form action="" method="POST" enctype="multipart/form-data">
                         {%csrf_token%}
-
+                        <input type="hidden" name="studentId" value="{{user.id}}">
                         <div class="w3-margin-bottom">
 
-                            <label for="" class="d-flex ">Select Subject<select name="subject"
+                            <label for="" class="d-flex">Select Subject<select name="subject"
                                     class="w3-input w3-round w3-border" id="">
                                     <option value="Course Work">Course Work</option>
                                     <option value="Research Proposal">Research Proposal</option>
@@ -25,7 +25,7 @@
 
                         <div class="w3-margin-bottom">
                             choose supervisor/lecturer
-                            <select name="lecturer" id="" class="w3-input w3-round w3-border my-2">
+                            <select name="lecturerId" id="" class="w3-input w3-round w3-border my-2">
                                 {% for l in lecturers %}
                                 <option value="{{l.user.id}}">{{l.user.first_name}} {{l.user.last_name}}</option>
                                 {%endfor%}
@@ -36,7 +36,7 @@
                         <div class="w3-margin-bottom">
                             Upload PDF
                             <input type="file" class="w3-input w3-round w3-border" name="u_file"
-                                placeholder="Enter Password" required>
+                                placeholder="Should be a PDF" required>
                         </div>
 
                         <button type="submit"

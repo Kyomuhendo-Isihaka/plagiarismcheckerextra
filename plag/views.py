@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from .models import Profile
+from django.shortcuts import get_object_or_404
+from .models import *
 from plag import plagiarismeng as ple
+import os
 
 
 # Create your views here.
@@ -40,15 +42,52 @@ def dashboard(request):
     }
     return render(request,"dashboard.html", context)
 
+def view_pdf(reqeust, pdf_file):
+    user = reqeust.user
+    upload = get_object_or_404(Upload, file_name = pdf_file)
+    comments = Comment.objects.filter(upload=upload)
+   
+
+    if reqeust.method == "POST":
+        comment_text = reqeust.POST.get('comment')
+        comment = Comment.objects.create(comment_text=comment_text, upload=upload)
+        comment.save()
+
+    if user.profile.role=="Lecturer":
+        upload.status = "Viewed"  
+        upload.save()
+
+    pdf_text = ple.extract_pdf_text(pdf_file)
+    context = {
+        'pdf_text':pdf_text,
+        'comments':comments
+    }
+    return render(reqeust, "pages/view_pdf.html", context)
+
+
 
 def upload(request):
     lecturers = Profile.objects.filter(role = 'Lecturer')
+
+    if request.method =="POST":
+        subject = request.POST.get('subject')
+        stdId = request.POST.get('studentId')
+        lctId = request.POST.get('lecturerId')
+
+        lecturer = Profile.objects.get(user =lctId)
+                
+        uploaded_file = ple.upload_file(request)
+        if uploaded_file is not None:
+            file_name = os.path.basename(uploaded_file)
+         
+        upload = Upload.objects.create(subject = subject, file_name=file_name, lecturer=lecturer ,student = stdId)
+        upload.save()
+        return redirect('plag:work')
     
     context = {
         'lecturers':lecturers
     }    
     return render(request, "pages/upload.html", context)
-
 
 def registration(request, role):
     if request.method == "POST":
@@ -77,6 +116,7 @@ def registration(request, role):
 def checkPlag(request):
     err=""
     file_path = ple.upload_file(request)
+    
     text= ple.read_pdf(file_path)
     if text:
         return redirect('plag:results')
@@ -91,8 +131,23 @@ def dictionary(request):
 
 
 def work(request):
-    
-    return render(request, "work.html")
+    user = request.user
+    students=""
+
+    if user.profile.role== "Student":
+        workuploads = Upload.objects.filter(student=user.id).order_by('-pk')
+        
+    else:
+        workuploads = Upload.objects.filter(lecturer=user.profile).order_by('-pk')
+        student_ids = workuploads.values_list('student', flat=True)
+        students = User.objects.filter(pk__in=student_ids)
+                     
+
+    context = {
+        'workuploads':workuploads,
+        'students':students,
+    }    
+    return render(request, "work.html", context)
 
 def results(request):
     return render(request, "results.html")
