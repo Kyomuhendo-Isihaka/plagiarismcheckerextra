@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shaka Plagiarism Checker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'assets/css/w3pro-4.13.css' %}?v={{ timestamp }}" />
+    <link rel="stylesheet" href="{% static 'assets/css/w3-theme.css' %}?v={{ timestamp }}" />
+    <link rel="stylesheet" href="{% static 'assets/css/admin-styles.css' %}?v={{ timestamp }}" />
+    <link rel="stylesheet" href="{% static 'assets/css/scrollbar.css' %}?v={{ timestamp }}" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css'%}?v={{ timestamp }}" />
+    <link rel="stylesheet" href="{% static 'assets/w3css.css'%}?v={{ timestamp }}" />
+    {% include 'layouts/card_styles.html' %}
+</head>
+
+<body class="w3-light-grey">
+    <div id="app">
+        <!-- TOP NAVIGATION -->
+        <div class="w3-top w3-white" style="height: 55px">
+            <div class="w3-flex-bar w3-theme w3-left-align w3-container">
+                <div class="admin-logo w3-bar-item w3-hide-medium w3-hide-small">
+                    <h3 style="line-height: 2; margin: 0 !important; font-weight: 750">
+                        {% block page_title %}Shaka Plagiarism Checker{% endblock %}
+                    </h3>
+                </div>
+
+                <div class="w3-right">
+                    {% block top_nav_items %}{% endblock %}
+                    
+                    <div class="dropdown d-inline">
+                        <a class="w3-button w3-large w3-opacity-min dropdown-toggle" href="#" role="button" 
+                           id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="https://ui-avatars.com/api/?name={{user.first_name}}+{{user.last_name}}&background=007bff&color=fff&size=32&rounded=true" 
+                                 alt="Profile" class="rounded-circle" style="width: 32px; height: 32px;">
+                            {{user.first_name}}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
+                            <div class="dropdown-header">
+                                <strong>{{user.first_name}} {{user.last_name}}</strong><br>
+                                <small class="text-muted">{% if user.is_superuser %}Admin{% else %}User{% endif %}</small>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'plag:profile' %}">
+                                <i class="fas fa-user"></i> Profile Settings
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="{% url 'plag:logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR NAVIGATION -->
+        <nav id="sidebar" class="w3-sidebar w3-top w3-bottom w3-collapse w3-white w3-border-right w3-border-top scrollbar" 
+             style="z-index: 3; width: 230px; height: auto; margin-top: 54px; border-color: rgba(0, 0, 0, 0.1) !important;">
+            <div class="w3-bar-block">
+                <a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fas fa-home"></i>&nbsp; Dashboard
+                </a>
+                <a href="{% url 'plag:checkplagiarism' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fas fa-search"></i>&nbsp; Check Plagiarism
+                </a>
+                <a href="{% url 'plag:enhanced_check' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fas fa-rocket"></i>&nbsp; Enhanced Analysis
+                </a>
+                <a href="{% url 'plag:analytics_dashboard' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fas fa-chart-bar"></i>&nbsp; Analytics
+                </a>
+                <a href="{% url 'plag:dictionary' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fas fa-book"></i>&nbsp; Dictionary
+                </a>
+                <a href="{% url 'plag:listen' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fas fa-volume-up"></i>&nbsp; Text Reader
+                </a>
+                {% if user.is_superuser %}
+                <a href="/admin/" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+                    <i class="fas fa-cogs"></i>&nbsp; Admin Panel
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <div class="w3-main" style="margin-top: 54px">
+            <div style="padding: 16px 32px">{% block content %}{% endblock %}</div>
+        </div>
+    </div>
+
+    <script src="{% static 'assets/plugins/chartjs/Chart.min.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'assets/plugins/chartjs/dashboard.js' %}?v={{ timestamp }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('.alert').each(function() {
+                if ($(this).hasClass('show')) {
+                    $(this).alert('close');
+                }
+            });
+        }, 5000);
+        
+        $('.alert').on('closed.bs.alert', function () {
+            $(this).remove();
+        });
+    });
+    </script>
+</body>
+</html>

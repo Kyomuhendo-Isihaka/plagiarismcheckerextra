@@ -1,94 +1,93 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/base.html' %}
+
+{% block title %}Work{% endblock %}
+
 {% block content %}
-{% load static %}
-
-<style>
-    .panel {
-        height: 550px;
-        resize: vertical;
-        overflow: auto;
-
-    }
-</style>
-<header>
-
-    <div class="panel w3-white w3-round w3-margin-bottom w3-border p-3">
-        {%if user.profile.role == "Student" %}
-        <h4 class="text-center">Work Uploads</h4>
-        <a href="{% url 'plag:upload' %}" class="m-3 w3-btn w3-blue">Upload</a>
-        <table class="table table-responsive w3-table table-bordered ">
-            <thead>
-                <tr>
-                    <th>Date of submission</th>
-                    <th>Subject</th>
-                    <th>Lecturer</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            {%for i in workuploads %}
-            <tr>
-                <td>{{i.date_uploaded}}</td>
-                <td>{{i.subject}}</td>
-                <td>{{i.lecturer.user.first_name}} {{i.lecturer.user.last_name}}</td>
-                <td><span
-                        class="text-center p-1 m-2 {% if i.status == 'Waiting'%}bg-warning{%else%}bg-success{%endif%} text-white">{{i.status}}</span>
-                </td>
-                <td>
-                    <div class="row d-flex">
-                        <a href="{% url 'plag:viewpdf' pdf_file=i.file_name %}" class="w3-btn btn-primary mx-3">View</a>
-                        <a href="#" class="btn"><i class="fa fa-trash text-danger"></i></a>
-                    </div>
-                </td>
-            </tr>
-            {%endfor%}
-
-
-        </table>
-
-        {%elif user.profile.role == "Lecturer" %}
-        <h4 class="text-center">Work Uploads</h4>
-        <table class="table table-responsive w3-table table-bordered ">
-            <thead>
-                <tr>
-                    <th>Date of submission</th>
-                    <th>Subject</th>
-                    <th>Student</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            {% for i in workuploads %}
-              
-            <tr>
-                <td>{{i.date_uploaded}}</td>
-                <td>{{i.subject}}</td>
-                <td>{% for student in students %}
-                    {% if student.pk == i.student %}
-                        {{ student.first_name }} {{ student.last_name }}
-                    {% endif %}
-                {% endfor %} </td>
-                <td><span
-                        class="text-center p-1 m-2 {% if i.status == 'Waiting'%}bg-warning{%else%}bg-success{%endif%} text-white">{{i.status}}</span>
-                </td>
-
-                <td>
-                    <div class="row d-flex">
-                        <!-- <a href="#" class="btn btn-success mx-3">Comment</a> -->
-                        <a href="{% url 'plag:viewpdf' pdf_file=i.file_name %}" class="w3-btn btn-primary mx-3">Review</a>
-                        <!-- <a href="#" class="btn"><i class="fa fa-eye text-primary"></i></a> -->
-
-                    </div>
-                </td>
-            </tr>
-            {%endfor%}
-
-        </table>
-        {%endif%}
-
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Work & Uploads</h2>
+        </div>
     </div>
-</header>
 
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-2">📁</div>
+                    <h5 class="card-title">Total Uploads</h5>
+                    <p class="card-text display-6">{{ total_uploads }}</p>
+                    <small class="text-muted">Documents submitted</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-warning mb-2">⏳</div>
+                    <h5 class="card-title">Pending Reviews</h5>
+                    <p class="card-text display-6">{{ pending_reviews }}</p>
+                    <small class="text-muted">Awaiting review</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Uploads Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Uploads</h5>
+                </div>
+                <div class="card-body">
+                    {% if workuploads %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>File Name</th>
+                                    <th>Student ID</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for upload in workuploads %}
+                                <tr>
+                                    <td>{{ upload.subject }}</td>
+                                    <td>{{ upload.file_name }}</td>
+                                    <td>{{ upload.student }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if upload.status == 'Waiting' %}warning{% elif upload.status == 'Reviewed' %}success{% else %}secondary{% endif %}">
+                                            {{ upload.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ upload.date_uploaded|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'plag:viewpdf' upload.file_name %}" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <div class="display-1 text-muted mb-3">📄</div>
+                        <h4>No uploads yet</h4>
+                        <p class="text-muted">Uploaded documents will appear here</p>
+                        {% if error %}
+                        <div class="alert alert-warning">{{ error }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

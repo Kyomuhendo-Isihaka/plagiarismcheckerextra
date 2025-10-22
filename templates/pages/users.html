@@ -1,4 +1,5 @@
-{% extends 'layout.html' %}
+{% load layout_tags %}
+{% extends user|get_user_layout %}
 {% block content %}
 {% load static %}
 
@@ -18,29 +19,25 @@
                     <th scope="col">Email Address</th>
                 </tr>
             
-                {% if role == "Lecturers" %}
+                {% if role == "Lecturer" %}
                     {% for user in users %}
-                        {% if user.profile.role == "Lecturer" %}
-                            <tr>
-                                <th scope="row">{{ user.id }}</th>
-                                <td>{{ user.first_name }}</td>
-                                <td>{{ user.last_name }}</td>
-                                <td>{{ user.username }}</td>
-                                <td>{{ user.email }}</td>
-                            </tr>
-                        {% endif %}
+                        <tr>
+                            <th scope="row">{{ user.id }}</th>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                        </tr>
                     {% endfor %}
-                {% elif role == "Students" %}
+                {% elif role == "Student" %}
                     {% for user in users %}
-                        {% if user.profile.role == "Student" %}
-                            <tr>
-                                <th scope="row">{{ user.id }}</th>
-                                <td>{{ user.first_name }}</td>
-                                <td>{{ user.last_name }}</td>
-                                <td>{{ user.username }}</td>
-                                <td>{{ user.email }}</td>
-                            </tr>
-                        {% endif %}
+                        <tr>
+                            <th scope="row">{{ user.id }}</th>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                        </tr>
                     {% endfor %}
                 {% else %}
                     <tr>

@@ -1,0 +1,297 @@
+{% load layout_tags %}
+{% extends user|get_user_layout %}
+{% block content %}
+{% load static %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="container-fluid">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h2 class="mb-1">🛡️ System Control Center</h2>
+                    <p class="mb-0">Platform Analytics, Organization Management & System Health</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-2 mb-3">
+            <div class="card text-center h-100 border-primary">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-2">🏢</div>
+                    <h6 class="card-title">Organizations</h6>
+                    <p class="card-text h4">{{total_organizations}}</p>
+                    <small class="text-muted">Active orgs</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card text-center h-100 border-success">
+                <div class="card-body">
+                    <div class="display-4 text-success mb-2">👥</div>
+                    <h6 class="card-title">Total Users</h6>
+                    <p class="card-text h4">{{total_users}}</p>
+                    <small class="text-muted">All users</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card text-center h-100 border-info">
+                <div class="card-body">
+                    <div class="display-4 text-info mb-2">📄</div>
+                    <h6 class="card-title">Documents</h6>
+                    <p class="card-text h4">{{total_uploads}}</p>
+                    <small class="text-muted">Analyzed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card text-center h-100 border-warning">
+                <div class="card-body">
+                    <div class="display-4 text-warning mb-2">🤖</div>
+                    <h6 class="card-title">AI Content</h6>
+                    <p class="card-text h4">{{ai_detected_uploads}}</p>
+                    <small class="text-muted">Detected</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card text-center h-100 border-secondary">
+                <div class="card-body">
+                    <div class="display-4 text-secondary mb-2">💳</div>
+                    <h6 class="card-title">Revenue</h6>
+                    <p class="card-text h4">$0</p>
+                    <small class="text-muted">Monthly</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card text-center h-100 border-dark">
+                <div class="card-body">
+                    <div class="display-4 text-dark mb-2">⚡</div>
+                    <h6 class="card-title">System</h6>
+                    <p class="card-text h4 text-success">OK</p>
+                    <small class="text-muted">Health</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Analytics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">👥 User Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="h6 text-primary">{{user_stats.org_students}}</div>
+                            <small>Org Students</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h6 text-success">{{user_stats.org_lecturers}}</div>
+                            <small>Org Lecturers</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h6 text-warning">{{user_stats.org_admins}}</div>
+                            <small>Org Admins</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h6 text-info">{{user_stats.individuals}}</div>
+                            <small>Individuals</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h6 text-danger">{{user_stats.superadmins}}</div>
+                            <small>Super Admins</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📊 AI Detection Rate</h5>
+                </div>
+                <div class="card-body">
+                    {% if total_uploads > 0 %}
+                        {% widthratio ai_detected_uploads total_uploads 100 as ai_percentage %}
+                        <div class="progress mb-2" style="height: 25px;">
+                            <div class="progress-bar bg-warning" style="width: {{ai_percentage}}%">
+                                {{ai_percentage}}%
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ai_detected_uploads}}/{{total_uploads}} flagged</small>
+                    {% else %}
+                        <div class="text-center text-muted py-3">No data yet</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">💳 Subscription Plans</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="h6 text-success">0</div>
+                            <small>Free</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h6 text-primary">0</div>
+                            <small>Pro</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h6 text-warning">{{total_organizations}}</div>
+                            <small>Enterprise</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Management -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🏢 Organization Management</h5>
+                </div>
+                <div class="card-body">
+                    {% for org in organizations %}
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                            <div>
+                                <strong>{{org.name}}</strong>
+                                <span class="badge {% if org.is_active %}bg-success{% else %}bg-secondary{% endif %} ms-2">
+                                    {% if org.is_active %}Active{% else %}Inactive{% endif %}
+                                </span><br>
+                                <small class="text-muted">{{org.plan|title}} Plan - {{org.max_users}} user limit</small><br>
+                                <small class="text-muted">Created: {{org.created_at|date:"M d, Y"}}</small>
+                            </div>
+                            <div class="text-end">
+                                <a href="/admin/plag/organization/{{org.id}}/change/" class="btn btn-sm btn-outline-primary">Manage</a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fa fa-building fa-2x mb-2"></i>
+                            <p>No organizations yet</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🚨 System Alerts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success" role="alert">
+                        <i class="fa fa-check-circle"></i> All systems operational
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-info-circle"></i> {{total_uploads}} documents processed today
+                    </div>
+                    {% if ai_detected_uploads > 0 %}
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fa fa-exclamation-triangle"></i> {{ai_detected_uploads}} AI content detections
+                    </div>
+                    {% endif %}
+                    <div class="alert alert-light" role="alert">
+                        <i class="fa fa-users"></i> {{total_users}} total platform users
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">📈 Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-2">
+                            <div class="border-end">
+                                <div class="h6">{{total_organizations}}</div>
+                                <small class="text-muted">Active Orgs</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="h6">$0</div>
+                            <small class="text-muted">MRR</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="border-end">
+                                <div class="h6">99.9%</div>
+                                <small class="text-muted">Uptime</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h6">0</div>
+                            <small class="text-muted">Support Tickets</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">⚡ Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="/admin/plag/organization/" class="btn btn-primary w-100">
+                                🏢 Organizations
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="/admin/auth/user/" class="btn btn-outline-primary w-100">
+                                👥 Users
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="/admin/plag/upload/" class="btn btn-outline-info w-100">
+                                📈 Analytics
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="/admin/" class="btn btn-outline-secondary w-100">
+                                ⚙️ Settings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

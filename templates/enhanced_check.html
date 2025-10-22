@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Enhanced Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Enhanced Document Analysis</h4>
+                    <small>Advanced plagiarism detection, AI analysis, and citation checking</small>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Document Title</label>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Enter document title">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="u_file" class="form-label">Upload Document</label>
+                            <input type="file" class="form-control" id="u_file" name="u_file" 
+                                   accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" required>
+                            <div class="form-text">
+                                Supported formats: PDF, Word, Text, Images (JPG, PNG)
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-features mb-4">
+                            <h6>Analysis Features:</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="feature-card">
+                                        <i class="fas fa-search text-danger"></i>
+                                        <h6>Enhanced Plagiarism</h6>
+                                        <small>Database & internet comparison</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="feature-card">
+                                        <i class="fas fa-robot text-warning"></i>
+                                        <h6>AI Detection</h6>
+                                        <small>Advanced ML-powered analysis</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="feature-card">
+                                        <i class="fas fa-quote-right text-info"></i>
+                                        <h6>Citation Analysis</h6>
+                                        <small>Format validation & suggestions</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-cogs"></i> Start Enhanced Analysis
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

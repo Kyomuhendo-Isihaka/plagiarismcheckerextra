@@ -1,23 +1,249 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/base.html' %}
+{% block sidebar_menu %}
+<a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-home"></i>&nbsp; Dashboard
+</a>
+<a href="{% url 'plag:checkplagiarism' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-search"></i>&nbsp; Check Plagiarism
+</a>
+<a href="{% url 'plag:listen' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-volume-up"></i>&nbsp; Text Reader
+</a>
+{% endblock %}
 {% block content %}
 {% load static %}
 
-<div class="w3-card-2 w3-round-xlarge w-75 mx-auto h-100 p-2" style="margin-top: 100px; background-color:#fff;">
-    <p class="w3-center mb-5 mt-2 " style="font-size:20px ;"><b>Upload a PDF file</b></p>
-    <form action="" method="POST" enctype="multipart/form-data" class="m-5">
-        {% csrf_token %}
-        <p class="text-center text-danger">{{err}}</p>
-        <div class="row mx-auto">
-            <div class="col-md-6 col-sm-6">
-                <label ><b>Upload File</b></label><br>
-                <label for="file"><i class="fa fa-upload" style="font-size:20px;"></i></label>
-                
-                <input type="file" name="u_file" id="file" style="display:none" required>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body text-center">
+                    <h2 class="mb-2"><i class="fas fa-shield-alt"></i> Advanced Plagiarism & AI Detector</h2>
+                    <p class="mb-0">Upload your document for comprehensive analysis using cutting-edge detection algorithms</p>
+                </div>
             </div>
         </div>
-        <div class="mt-4 mb-5 mx-auto w3-center">
-            <input type="submit" value="Check Plagiarism" name="submit" class="w3-btn w-50 mb-4 btn-primary mx-auto" id="">
+    </div>
+
+    <div class="row">
+        <!-- Upload Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-upload"></i> Document Upload & Analysis</h4>
+                </div>
+                <div class="card-body">
+                    {% if err %}
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle"></i> {{ err }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endif %}
+                    
+                    <form action="" method="POST" enctype="multipart/form-data" id="checkForm">
+                        {% csrf_token %}
+                        
+                        <!-- File Upload Area -->
+                        <div class="mb-4">
+                            <label for="file" class="form-label h5">
+                                <i class="fas fa-file-upload"></i> Select Your Document
+                            </label>
+                            <div class="border-2 border-dashed border-primary rounded p-4 text-center" id="dropZone">
+                                <input type="file" class="form-control d-none" name="u_file" id="file" 
+                                       accept=".pdf,.doc,.docx,.txt,.epub,.html,.jpg,.jpeg,.png,.bmp,.tiff" required>
+                                <div id="uploadPrompt">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted">Supported: PDF, DOC, DOCX, TXT, EPUB, HTML, Images (Max: 50MB)</p>
+                                    <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('file').click()">
+                                        <i class="fas fa-folder-open"></i> Browse Files
+                                    </button>
+                                </div>
+                                <div id="fileInfo" class="d-none">
+                                    <i class="fas fa-file-check fa-3x text-success mb-3"></i>
+                                    <div id="fileName" class="h5"></div>
+                                    <div id="fileSize" class="text-muted"></div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="clearFile()">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Options -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-robot fa-2x text-info mb-2"></i>
+                                        <h6>AI Detection</h6>
+                                        <small class="text-muted">Detects ChatGPT, GPT-4, and other AI-generated content</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-warning">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-search fa-2x text-warning mb-2"></i>
+                                        <h6>Plagiarism Check</h6>
+                                        <small class="text-muted">Analyzes content similarity and originality</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn" disabled>
+                            <i class="fas fa-cogs"></i> <span id="btnText">Select a file to analyze</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </form>
+        
+        <!-- Info Panel -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Analysis Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-robot text-danger"></i> AI Content Detection</h6>
+                        <ul class="small">
+                            <li>ChatGPT & GPT-4 detection</li>
+                            <li>Writing pattern analysis</li>
+                            <li>Linguistic marker identification</li>
+                            <li>Confidence scoring</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-search text-warning"></i> Plagiarism Analysis</h6>
+                        <ul class="small">
+                            <li>Content similarity checking</li>
+                            <li>Source identification</li>
+                            <li>Originality assessment</li>
+                            <li>Citation recommendations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-chart-bar text-success"></i> Document Statistics</h6>
+                        <ul class="small">
+                            <li>Word & character count</li>
+                            <li>Reading time estimation</li>
+                            <li>Content structure analysis</li>
+                            <li>Risk level assessment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-shield-check"></i> Privacy & Security</h6>
+                </div>
+                <div class="card-body">
+                    <small>
+                        <i class="fas fa-lock text-success"></i> Your documents are processed securely<br>
+                        <i class="fas fa-trash text-info"></i> Files are automatically deleted after analysis<br>
+                        <i class="fas fa-user-shield text-primary"></i> No content is stored or shared
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+function clearFile() {
+    document.getElementById('file').value = '';
+    document.getElementById('uploadPrompt').classList.remove('d-none');
+    document.getElementById('fileInfo').classList.add('d-none');
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('btnText').textContent = 'Select a file to analyze';
+}
+
+document.getElementById('file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    
+    if (file) {
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/html', 'application/epub+zip'];
+        
+        if (file.size > 50 * 1024 * 1024) {
+            alert('⚠️ File too large! Maximum size is 50MB.');
+            clearFile();
+            return;
+        }
+        
+        if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|txt|html|epub|jpg|jpeg|png|bmp|tiff)$/i)) {
+            alert('⚠️ Invalid file type! Please upload PDF, DOC, DOCX, TXT, HTML, EPUB, or image files only.');
+            clearFile();
+            return;
+        }
+        
+        // Show file info
+        uploadPrompt.classList.add('d-none');
+        fileInfo.classList.remove('d-none');
+        fileName.textContent = file.name;
+        fileSize.textContent = `${fileSizeMB} MB`;
+        submitBtn.disabled = false;
+        btnText.innerHTML = '<i class="fas fa-rocket"></i> Analyze Document';
+    }
+});
+
+// Drag and drop functionality
+const dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dropZone.classList.add('border-success');
+});
+
+dropZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    dropZone.classList.remove('border-success');
+});
+
+dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropZone.classList.remove('border-success');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('file').files = files;
+        document.getElementById('file').dispatchEvent(new Event('change'));
+    }
+});
+
+document.getElementById('checkForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    
+    submitBtn.disabled = true;
+    btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing Document...';
+    
+    // Show progress animation
+    setTimeout(() => {
+        btnText.innerHTML = '<i class="fas fa-cogs fa-spin"></i> Processing Content...';
+    }, 2000);
+});
+</script>
 {% endblock %}

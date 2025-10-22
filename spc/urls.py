@@ -13,6 +13,10 @@ urlpatterns = [
 
 
 
+# Error handlers
+handler404 = 'plag.views.handler404'
+handler403 = 'plag.views.handler403'
+
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

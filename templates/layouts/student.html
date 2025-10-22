@@ -1,0 +1,42 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}
+{% if user.profile.organization %}{{user.profile.organization.name}} - Student{% else %}Student - Shaka{% endif %}
+{% endblock %}
+
+{% block user_role %}Student{% endblock %}
+
+{% block top_nav_items %}
+<a href="{% url 'plag:notifications' %}" class="w3-large w3-opacity-min p-2 position-relative">
+    <i class="fas fa-bell"></i>
+    {% if has_unread_notifications %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em;">
+            {{ unread_notifications_count }}
+        </span>
+    {% endif %}
+</a>
+{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-home"></i>&nbsp; Dashboard
+</a>
+<a href="{%url 'plag:upload'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-upload"></i>&nbsp; Submit Work
+</a>
+<a href="{%url 'plag:work'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-folder"></i>&nbsp; My Submissions
+</a>
+<a href="{% url 'plag:checkplagiarism'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-search"></i>&nbsp; Quick Check
+</a>
+<a href="{%url 'plag:dictionary'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-book"></i>&nbsp; Dictionary
+</a>
+<a href="{% url 'plag:notifications' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-bell"></i>&nbsp; Notifications
+    {% if has_unread_notifications %}
+        <span class="badge badge-danger ml-2">{{ unread_notifications_count }}</span>
+    {% endif %}
+</a>
+{% endblock %}

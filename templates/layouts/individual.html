@@ -1,0 +1,20 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Personal - Shaka{% endblock %}
+
+{% block user_role %}Individual{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-home"></i>&nbsp; Dashboard
+</a>
+<a href="{% url 'plag:checkplagiarism'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-search"></i>&nbsp; Check Plagiarism
+</a>
+<a href="{%url 'plag:dictionary'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-book"></i>&nbsp; Dictionary
+</a>
+<a href="{%url 'plag:listen'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-volume-up"></i>&nbsp; Text Reader
+</a>
+{% endblock %}

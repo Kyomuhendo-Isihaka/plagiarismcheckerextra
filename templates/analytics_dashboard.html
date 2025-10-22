@@ -1,0 +1,167 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Advanced Analytics Dashboard</h2>
+        </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-2">📄</div>
+                    <h5 class="card-title">Total Documents</h5>
+                    <p class="card-text display-6">{{ analytics.overview.total_documents }}</p>
+                    <small class="text-muted">Documents analyzed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-danger mb-2">⚠️</div>
+                    <h5 class="card-title">Plagiarized</h5>
+                    <p class="card-text display-6">{{ analytics.overview.plagiarized_documents }}</p>
+                    <small class="text-muted">High similarity detected</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-warning mb-2">🤖</div>
+                    <h5 class="card-title">AI Generated</h5>
+                    <p class="card-text display-6">{{ analytics.overview.ai_generated_documents }}</p>
+                    <small class="text-muted">AI content detected</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-success mb-2">✅</div>
+                    <h5 class="card-title">Clean Documents</h5>
+                    <p class="card-text display-6">{{ analytics.overview.clean_documents }}</p>
+                    <small class="text-muted">Original content</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Plagiarism Distribution</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if analytics.charts.plagiarism_pie %}
+                        <img src="data:image/png;base64,{{ analytics.charts.plagiarism_pie }}" class="img-fluid">
+                    {% else %}
+                        <p>No data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>AI Detection Distribution</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if analytics.charts.ai_histogram %}
+                        <img src="data:image/png;base64,{{ analytics.charts.ai_histogram }}" class="img-fluid">
+                    {% else %}
+                        <p>No data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Patterns -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>High-Risk Patterns</h5>
+                </div>
+                <div class="card-body">
+                    {% for pattern in analytics.document_analysis.high_risk_patterns %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ pattern.pattern }}</span>
+                        <span class="badge bg-danger">{{ pattern.count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>AI Detection Features</h5>
+                </div>
+                <div class="card-body">
+                    {% for feature in analytics.ai_detection_stats.ai_features_analysis %}
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ feature.feature }}</span>
+                            <span>{{ feature.avg_score|floatformat:2 }}</span>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar" style="width: {{ feature.avg_score|floatformat:0 }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trends Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Trends (Last 30 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Documents</th>
+                                    <th>Avg Plagiarism %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trend in analytics.plagiarism_trends %}
+                                <tr>
+                                    <td>{{ trend.day }}</td>
+                                    <td>{{ trend.count }}</td>
+                                    <td>{{ trend.avg_plagiarism|floatformat:1 }}%</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

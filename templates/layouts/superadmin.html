@@ -1,0 +1,23 @@
+{% extends 'layouts/base.html' %}
+
+
+{% block sidebar_menu %}
+<a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-tachometer-alt"></i>&nbsp; System Dashboard
+</a>
+<a href="/admin/plag/organization/" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-building"></i>&nbsp; Organizations
+</a>
+<a href="{% url 'plag:users' role='Student' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-graduation-cap"></i>&nbsp; Org Students
+</a>
+<a href="{% url 'plag:users' role='Lecturer' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-chalkboard-teacher"></i>&nbsp; Org Lecturers
+</a>
+<a href="{% url 'plag:individual_users' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-user"></i>&nbsp; Individual Users
+</a>
+<a href="/admin/" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-cogs"></i>&nbsp; System Admin
+</a>
+{% endblock %}

@@ -7,181 +7,115 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Shaka pragiarism Checker</title>
+    <title>Shaka Plagiarism Checker</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" />
-    <link rel="stylesheet" href="{% static 'assets/icons/font-awesome-4.7.0/css/font-awesome.min.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="{% static 'assets/css/w3pro-4.13.css' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/w3-theme.css' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/admin-styles.css' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/scrollbar.css' %}" />
-
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css'%}" />
     <link rel="stylesheet" href="{% static 'assets/w3css.css'%}" />
-
-    <style>
-        .image {
-            width: 100px;
-            height: 100px;
-            border-radius: 100%;
-            margin: auto;
-            margin-top: 10px;
-            margin-left: 50px;
-            margin-bottom: 15px;
-            justify-content: center;
-            align-items: center
-        }
-
-        .centered-image {
-            display: flex;
-
-            ;
-
-        }
-    </style>
 </head>
-
 
 <body class="w3-light-grey">
     <input id="sidebar-control" type="checkbox" class="w3-hide" />
 
     <div id="app">
-        <div class="w3-top w3- w3-white" style="height: 55px">
+        <!-- TOP NAVIGATION -->
+        <div class="w3-top w3-white" style="height: 55px">
             <div class="w3-flex-bar w3-theme w3-left-align w3-container">
                 <div class="admin-logo w3-bar-item w3-hide-medium w3-hide-small">
-                    <h3 class="pr-4" style="line-height: 2; margin: 0 !important; font-weight: 750">                  
-                            Shaka Plagiarism Checker                       
+                    <h3 style="line-height: 2; margin: 0 !important; font-weight: 750">
+                        {% if user.is_superuser %}
+                            System Admin - Shaka
+                        {% elif user.profile and user.profile.role == 'Admin' and not user.is_superuser %}
+                            {% if user.profile.organization %}{{user.profile.organization.name}} - Admin{% else %}Org Admin - Shaka{% endif %}
+                        {% elif user.profile and user.profile.role == 'Individual' %}
+                            Personal - Shaka
+                        {% elif user.profile and user.profile.role == 'Student' %}
+                            {% if user.profile.organization %}{{user.profile.organization.name}} - Student{% else %}Student - Shaka{% endif %}
+                        {% elif user.profile and user.profile.role == 'Lecturer' %}
+                            {% if user.profile.organization %}{{user.profile.organization.name}} - Lecturer{% else %}Lecturer - Shaka{% endif %}
+                        {% else %}
+                            Shaka Plagiarism Checker
+                        {% endif %}
                     </h3>
                 </div>
-                <!-- <label for="sidebar-control" class="w3-button w3-large w3-opacity-min"><i
-                        class="fa fa-bars"></i></label> -->
-<!-- 
-                <div class="w3-container w3-display-container" style="width: 40%">
-                    <div class="w3-display-right w3-padding-small w3-margin-right"
-                        onclick="this.parentNode.children[1].focus()">
-                        <i class="fa fa-search w3-opacity-max"></i>
-                    </div>
-                    <input type="text"
-                        class="w3-input w3-border w3-round w3-small w3-padding-small w3-gray-lighter w3-show-inline-block"
-                        placeholder="Enter keywords" />
-                </div> -->
 
                 <div class="w3-right">
-                   
-                    <a type="button" class="w3-large w3-opacity-min p-2">
-                        <i class="fa fa-bell"></i>
+                    {% if user.profile and not user.profile.is_individual %}
+                    <a href="{% url 'plag:notifications' %}" class="w3-large w3-opacity-min p-2 position-relative">
+                        <i class="fas fa-bell"></i>
+                        {% if has_unread_notifications %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em;">
+                                {{ unread_notifications_count }}
+                            </span>
+                        {% endif %}
                     </a>
+                    {% endif %}
+                    
+                    <div class="dropdown d-inline">
+                        <a class="w3-button w3-large w3-opacity-min dropdown-toggle" href="#" role="button" 
+                           id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="https://ui-avatars.com/api/?name={{user.first_name}}+{{user.last_name}}&background=007bff&color=fff&size=32&rounded=true" 
+                                 alt="Profile" class="rounded-circle" style="width: 32px; height: 32px;">
+                            {{user.first_name}}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
+                            <div class="dropdown-header">
+                                <strong>{{user.first_name}} {{user.last_name}}</strong><br>
+                                <small class="text-muted">
+                                    {% if user.is_superuser %}Super Admin
+                                    {% elif user.profile %}{{user.profile.role}}
+                                    {% else %}User{% endif %}
+                                </small>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'plag:profile' %}">
+                                <i class="fas fa-user"></i> Profile Settings
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="{% url 'plag:logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
                 </div>
-
             </div>
         </div>
 
-        <nav id="sidebar"
-            class="w3-sidebar w3-top w3-bottom w3-collapse w3-white w3-border-right w3-border-top scrollbar" style="
-          z-index: 3;
-          width: 230px;
-          height: auto;
-          margin-top: 54px;
-          border-color: rgba(0, 0, 0, 0.1) !important;
-        " id="mySidebar">
-            <div class="w3-bar-item w3-border-bottom w3-hide-large" style="padding: 6px 0">
-                <label for="sidebar-control" class="w3-left w3-button w3-large w3-opacity-min"
-                    style="background: white !important"><i class="fa fa-bars"></i></label>
-                <h5 class="" style="line-height: 1; margin: 0 !important; font-weight: 300">
-                    <a href="#" class="w3-button" style="background: white !important">
-                        Shaka Plagiarism Checker
-                    </a>
-                </h5>
-            </div>
-            <div class="w3-bar-block">
-                <div>
-                    <img class="image" src="{% static 'assets/images/1.jpg'%}" alt="" />
-
-                </div>
-
-
-                <p class="text-center bold"><b>Username: {{user.username}}</b></p>
-                <p class="text-center bold"><b>({{user.profile.role}})</b></p>
-
-                <hr>
-                <a href="{% url 'plag:dashboard' %}"
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-bar-chart"></i>&nbsp; Dashboard
-                </a>
-
-                {%if user.is_staff == False%}
-                <a href="{% url 'plag:checkplagiarism'%}"
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-fire"></i>&nbsp;Check Plagiarism
-                </a>
-
-                <a href="{%url 'plag:dictionary'%}"
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-book"></i>&nbsp; Dictionary
-                </a>
-
-                <a href="{%url 'plag:work'%}"
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-table"></i>&nbsp; Work Uploads
-                </a>
-
-                <a href="{%url 'plag:listen'%}"
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-microphone"></i>&nbsp; Reader
-                </a>
-
-                <a href=""
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-bell"></i>&nbsp; Notifications
-                </a>
-                <hr>
-                {%endif%}
-
-                {% if user.is_staff == True %}
-                <a href="{% url 'plag:users' role='Lecturers'%}"
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-user-circle"></i>&nbsp; Lecturers
-                </a>
-                <a href="{% url 'plag:users' role='Students'%}"
-                    class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
-                    <i class="fa fa-fw fa-user"></i>&nbsp; Students
-                </a>
-                <hr />
-                <div class="dropdown">
-                    <a href="#" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary dropdown-toggle"
-                        id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-fw fa-sign-in"></i>&nbsp; Registration
-                    </a>
-
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="{%url 'plag:registration' role='Lecturer'%}">Lecturer</a>
-                        <a class="dropdown-item" href="{%url 'plag:registration' role='Student'%}">Student</a>
-                    </div>
-                </div>
-
-
-                {%endif%}
-                <a href="{%url 'plag:profile'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary">
-                    <i class="fa fa-fw fa-user-circle"></i>&nbsp; Profile
-                </a>
-                <a href="{% url 'plag:logout'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary">
-                    <i class="fa fa-fw fa-unlock"></i>&nbsp; Logout
-                </a>
-
-            </div>
-        </nav>
+        <!-- SIDEBAR NAVIGATION -->
+        
 
         <div class="w3-main" style="margin-top: 54px">
             <div style="padding: 16px 32px">{%block content%} {%endblock%}</div>
         </div>
     </div>
+
     <script src="{% static 'assets/plugins/chartjs/Chart.min.js' %}"></script>
     <script src="{% static 'assets/plugins/chartjs/dashboard.js' %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     
+    <script>
+    $(document).ready(function() {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').each(function() {
+                if ($(this).hasClass('show')) {
+                    $(this).alert('close');
+                }
+            });
+        }, 5000);
+        
+        // Handle alert close events
+        $('.alert').on('closed.bs.alert', function () {
+            $(this).remove();
+        });
+    });
+    </script>
 
 </body>
-
 </html>

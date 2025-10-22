@@ -1,0 +1,17 @@
+{% extends 'layouts/base.html' %}
+
+
+{% block sidebar_menu %}
+<a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-tachometer-alt"></i>&nbsp; Dashboard
+</a>
+<a href="{% url 'plag:users' role='Student'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-graduation-cap"></i>&nbsp; Students
+</a>
+<a href="{% url 'plag:users' role='Lecturer'%}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-chalkboard-teacher"></i>&nbsp; Lecturers
+</a>
+<a href="{% url 'plag:work' %}" class="w3-bar-item w3-button w3-padding-large w3-hover-text-primary nav-link">
+    <i class="fas fa-chart-bar"></i>&nbsp; Analytics
+</a>
+{% endblock %}

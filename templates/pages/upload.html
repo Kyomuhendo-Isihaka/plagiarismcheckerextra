@@ -1,52 +1,100 @@
-{% extends 'layout.html' %}
-{% block content %}
+{% load layout_tags %}
+{% extends user|get_user_layout %}
 {% load static %}
+{% block content %}
 
-<div style="padding:16px 32px">
-    <div class="w3-padding-32">
-        <div class="w3-auto w-75">
-            <div class="w3-white w3-round w3-margin-bottom w3-border">
-                <div class="w3-padding-large">
-                    <div class="w3-center w3-padding-16">
-                        <p>Upload Work </p>
-                    </div>
-                    <form action="" method="POST" enctype="multipart/form-data">
+{% include 'messages.html' %}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📤 Upload Document for Review</h4>
+                    <small>Submit your work for plagiarism and AI content analysis</small>
+                </div>
+                <div class="card-body">
+                    <form action="" method="POST" enctype="multipart/form-data" id="uploadForm">
                         {%csrf_token%}
                         <input type="hidden" name="studentId" value="{{user.id}}">
-                        <div class="w3-margin-bottom">
-
-                            <label for="" class="d-flex">Select Subject<select name="subject"
-                                    class="w3-input w3-round w3-border" id="">
-                                    <option value="Course Work">Course Work</option>
-                                    <option value="Research Proposal">Research Proposal</option>
-                                    <option value="Report">Report</option>
-                                </select></label>
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">📚 Subject/Category</label>
+                            <select name="subject" class="form-select" id="subject" required>
+                                <option value="">-- Select Subject --</option>
+                                <option value="Course Work">Course Work</option>
+                                <option value="Research Proposal">Research Proposal</option>
+                                <option value="Thesis">Thesis</option>
+                                <option value="Report">Report</option>
+                                <option value="Essay">Essay</option>
+                                <option value="Assignment">Assignment</option>
+                            </select>
                         </div>
 
-                        <div class="w3-margin-bottom">
-                            choose supervisor/lecturer
-                            <select name="lecturerId" id="" class="w3-input w3-round w3-border my-2">
+                        <div class="mb-3">
+                            <label for="lecturer" class="form-label">👨🏫 Choose Supervisor/Lecturer</label>
+                            <select name="lecturerId" id="lecturer" class="form-select" required>
+                                <option value="">-- Select Lecturer --</option>
                                 {% for l in lecturers %}
                                 <option value="{{l.user.id}}">{{l.user.first_name}} {{l.user.last_name}}</option>
                                 {%endfor%}
                             </select>
-
                         </div>
 
-                        <div class="w3-margin-bottom">
-                            Upload PDF
-                            <input type="file" class="w3-input w3-round w3-border" name="u_file"
-                                placeholder="Should be a PDF" required>
+                        <div class="mb-3">
+                            <label for="file" class="form-label">📄 Upload Document</label>
+                            <input type="file" class="form-control" name="u_file" id="file" 
+                                   accept=".pdf,.doc,.docx,.txt" required>
+                            <div class="form-text">
+                                ℹ️ Supported formats: PDF, DOCX, DOC, TXT (Max: 50MB)
+                            </div>
+                            <div id="fileInfo" class="mt-2"></div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6>🤖 AI Detection Notice</h6>
+                            <p class="mb-0">Your document will be automatically analyzed for AI-generated content. 
+                            This helps maintain academic integrity.</p>
                         </div>
 
-                        <button type="submit"
-                            class="w3-button w3-round w3-margin-bottom w3-primary w3-block">Submit</button>
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                            🚀 Submit for Analysis
+                        </button>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const fileInfo = document.getElementById('fileInfo');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (file) {
+        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+        
+        if (file.size > 50 * 1024 * 1024) {
+            fileInfo.innerHTML = '<div class="alert alert-danger">⚠️ File too large! Maximum size is 50MB.</div>';
+            submitBtn.disabled = true;
+        } else if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|txt)$/i)) {
+            fileInfo.innerHTML = '<div class="alert alert-danger">⚠️ Invalid file type! Please upload PDF, DOC, DOCX, or TXT files only.</div>';
+            submitBtn.disabled = true;
+        } else {
+            fileInfo.innerHTML = `<div class="alert alert-success">✅ File: ${file.name} (${fileSize} MB)</div>`;
+            submitBtn.disabled = false;
+        }
+    }
+});
+
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '🔄 Uploading and Analyzing...';
+    submitBtn.disabled = true;
+});
+</script>
 
 {% endblock %}

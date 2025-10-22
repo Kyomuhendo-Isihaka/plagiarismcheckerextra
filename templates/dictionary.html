@@ -1,5 +1,286 @@
-{% extends 'layout.html' %}
-{% block content %}
+{% extends 'layouts/base.html' %}
 {% load static %}
-<iframe src="http://www.dictionary.com" frameborder="0" style="width: 100%; height:650px;"></iframe>
+
+{% block sidebar_menu %}
+<a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding">
+    <i class="fas fa-tachometer-alt"></i> Dashboard
+</a>
+<a href="{% url 'plag:checkplagiarism' %}" class="w3-bar-item w3-button w3-padding">
+    <i class="fas fa-search"></i> Plagiarism Checker
+</a>
+<a href="{% url 'plag:dictionary' %}" class="w3-bar-item w3-button w3-padding w3-theme">
+    <i class="fas fa-book"></i> Dictionary
+</a>
+<a href="{% url 'plag:listen' %}" class="w3-bar-item w3-button w3-padding">
+    <i class="fas fa-headphones"></i> Text Reader
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Dictionary Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-book"></i> Dictionary & Reference</h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <!-- Search Panel -->
+                        <div class="col-12 p-3 border-bottom">
+                            <div class="input-group">
+                                <input type="text" id="searchWord" class="form-control" placeholder="Search for a word...">
+                                <button class="btn btn-primary" onclick="searchWord()"><i class="fas fa-search"></i> Search</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Dictionary Content -->
+                        <div class="col-12">
+                            <div id="dictionaryContent" class="p-3">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-book-open fa-3x mb-3"></i>
+                                    <h5>Welcome to Dictionary</h5>
+                                    <p>Search for any word to get definitions, synonyms, and examples.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Reference -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Writing Tips</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success"></i> Academic Writing</h6>
+                            <ul class="list-unstyled small">
+                                <li>• Use formal language</li>
+                                <li>• Cite your sources</li>
+                                <li>• Avoid plagiarism</li>
+                                <li>• Structure your arguments</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-exclamation-triangle text-warning"></i> Common Mistakes</h6>
+                            <ul class="list-unstyled small">
+                                <li>• Run-on sentences</li>
+                                <li>• Unclear references</li>
+                                <li>• Inconsistent tense</li>
+                                <li>• Missing citations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notifications Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-bell"></i> Notifications</h5>
+                    {% if notification_count > 0 %}
+                        <span class="badge bg-warning">{{ notification_count }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if notifications %}
+                        <div class="list-group list-group-flush">
+                            {% for notification in notifications %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                    </div>
+                                    <p class="mb-1 small">{{ notification.message }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-{% if notification.notification_type == 'upload' %}upload{% elif notification.notification_type == 'ai_detection' %}robot{% elif notification.notification_type == 'comment' %}comment{% else %}info-circle{% endif %}"></i>
+                                            {{ notification.get_notification_type_display }}
+                                        </small>
+                                        <a href="{% url 'plag:mark_notification_read' notification.id %}" class="btn btn-sm btn-outline-primary">Mark Read</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="card-footer text-center">
+                            <a href="{% url 'plag:notifications' %}" class="btn btn-sm btn-primary">View All Notifications</a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                            <p>No new notifications</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'plag:checkplagiarism' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-search"></i> Check Plagiarism
+                        </a>
+                        <a href="{% url 'plag:upload' %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-upload"></i> Upload Document
+                        </a>
+                        <a href="{% url 'plag:work' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-folder"></i> My Work
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function searchWord() {
+    const word = document.getElementById('searchWord').value.trim();
+    if (!word) {
+        alert('Please enter a word to search');
+        return;
+    }
+    
+    const content = document.getElementById('dictionaryContent');
+    content.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-2">Searching...</p></div>';
+    
+    try {
+        // Use Free Dictionary API
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayWordData(data[0]);
+        } else {
+            // Fallback to basic definition
+            content.innerHTML = `
+                <div class="p-3">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Word not found</h5>
+                        <p>No definition found for "${word}". Please check the spelling or try a different word.</p>
+                    </div>
+                    <div class="mt-3">
+                        <h6>Suggestions:</h6>
+                        <ul>
+                            <li>Check the spelling</li>
+                            <li>Try a simpler form of the word</li>
+                            <li>Use synonyms or related terms</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        content.innerHTML = `
+            <div class="p-3">
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-circle"></i> Connection Error</h5>
+                    <p>Unable to connect to dictionary service. Please check your internet connection.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function displayWordData(wordData) {
+    const content = document.getElementById('dictionaryContent');
+    const word = wordData.word;
+    const phonetic = wordData.phonetic || '';
+    
+    let html = `
+        <div class="p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="text-primary mb-0">${word}</h3>
+                <button class="btn btn-outline-primary btn-sm" onclick="speakWord('${word}')">
+                    <i class="fas fa-volume-up"></i> Pronounce
+                </button>
+            </div>
+    `;
+    
+    if (phonetic) {
+        html += `<div class="mb-3"><span class="text-muted fs-5">${phonetic}</span></div>`;
+    }
+    
+    // Display meanings
+    wordData.meanings.forEach((meaning, index) => {
+        html += `
+            <div class="mb-4 border-start border-3 border-primary ps-3">
+                <div class="mb-2">
+                    <span class="badge bg-secondary">${meaning.partOfSpeech}</span>
+                </div>
+        `;
+        
+        meaning.definitions.slice(0, 3).forEach((def, defIndex) => {
+            html += `
+                <div class="mb-3">
+                    <h6>Definition ${defIndex + 1}:</h6>
+                    <p>${def.definition}</p>
+            `;
+            
+            if (def.example) {
+                html += `
+                    <div class="ms-3">
+                        <h6 class="small text-muted">Example:</h6>
+                        <p class="fst-italic text-muted">"${def.example}"</p>
+                    </div>
+                `;
+            }
+            
+            if (def.synonyms && def.synonyms.length > 0) {
+                html += `
+                    <div class="ms-3">
+                        <h6 class="small text-muted">Synonyms:</h6>
+                        <div>
+                `;
+                def.synonyms.slice(0, 5).forEach(synonym => {
+                    html += `<span class="badge bg-light text-dark me-1">${synonym}</span>`;
+                });
+                html += `</div></div>`;
+            }
+            
+            html += `</div>`;
+        });
+        
+        html += `</div>`;
+    });
+    
+    html += `
+            <div class="alert alert-success">
+                <small><i class="fas fa-check-circle"></i> Definition provided by Free Dictionary API</small>
+            </div>
+        </div>
+    `;
+    
+    content.innerHTML = html;
+}
+
+function speakWord(word) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+    } else {
+        alert('Speech synthesis not supported in your browser');
+    }
+}
+
+// Allow Enter key to search
+document.getElementById('searchWord').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchWord();
+    }
+});
+</script>
+
 {% endblock %}

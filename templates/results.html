@@ -1,47 +1,274 @@
-{% extends 'layout.html' %}
-{% block content %}
+{% extends 'layouts/base.html' %}
 {% load static %}
-<style>
-    .panel {
-        overflow: auto;
-        resize: vertical;
-        height: 635px;
-        margin-top: 15px;
-    }
-</style>
-<div class="panel">
-    <div class="col-md-12">
-        <div class="row">
-            <div class="col-md-4 col-sm-4">
-                <div class="w3-card-2 w-75 p-3 w3-white w3-center mt-3 " style="border-radius:15px; z-index: 1;">
-                    <p>Similarity</p>
-                    <p style="font-size:25px ;"><b>28 books</b></p>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="w3-card-2 w-75 p-3 w3-white w3-center mt-3 " style="border-radius:15px; z-index: 1;">
-                    <p>Percentage</p>
-                    <p style="font-size:25px ;"><b>{{n}}%</b></p>
-                </div>
-            </div>
 
-            <div class="col-md-4 col-sm-4">
-                <div class="w3-card-2 w-75 p-3 w3-center w3-white mt-3 " style="border-radius:15px; z-index: -1;">
-                    <p>Book size</p>
-                    <p style="font-size:25px ;"><b>{{size}} kb</b></p>
-                </div>
-            </div>
 
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+    {% endfor %}
+{% endif %}
 
-        <a class="w3-btn w3-blue float-right mt-2 mb-3" href="">Download Report</a><br>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📊 Document Analysis Results</h4>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% else %}
+                        <!-- Overall Score -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card border-primary">
+                                    <div class="card-body text-center">
+                                        <h3 class="mb-3">📊 Analysis Summary</h3>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <h5>🤖 AI Detection Score</h5>
+                                                    <div class="progress mb-2" style="height: 25px;">
+                                                        <div class="progress-bar {% if ai_detection.confidence >= 70 %}bg-danger{% elif ai_detection.confidence >= 40 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                             style="width: {{ ai_detection.confidence|default:0 }}%">
+                                                            {{ ai_detection.confidence|floatformat:0|default:"0" }}%
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge {% if ai_detection.is_ai_generated %}bg-danger{% else %}bg-success{% endif %} fs-6">
+                                                        {% if ai_detection.is_ai_generated %}⚠️ AI Content Detected{% else %}✅ Human Written{% endif %}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <h5>🔍 Plagiarism Score</h5>
+                                                    <div class="progress mb-2" style="height: 25px;">
+                                                        <div class="progress-bar {% if plagiarism_score >= 30 %}bg-danger{% elif plagiarism_score >= 15 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                             style="width: {{ plagiarism_score|default:0 }}%">
+                                                            {{ plagiarism_score|floatformat:0|default:"0" }}%
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge {% if plagiarism_score >= 30 %}bg-danger{% elif plagiarism_score >= 15 %}bg-warning{% else %}bg-success{% endif %} fs-6">
+                                                        {% if plagiarism_score >= 30 %}⚠️ High Similarity{% elif plagiarism_score >= 15 %}⚠️ Moderate Similarity{% else %}✅ Original Content{% endif %}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-        <h2>Graph</h2>
-        <h2>Related documents</h2>
-        <ul>
-            <li><a href="">References</a></li>
-            <li><a href="">References</a></li>
-        </ul>
+                        <!-- Statistics Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-file-alt fa-3x text-info mb-3"></i>
+                                        <h6>Word Count</h6>
+                                        <h4 class="text-primary">{{ word_count|default:0 }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-keyboard fa-3x text-secondary mb-3"></i>
+                                        <h6>Characters</h6>
+                                        <h4 class="text-secondary">{{ character_count|default:0 }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-clock fa-3x text-info mb-3"></i>
+                                        <h6>Reading Time</h6>
+                                        <h4 class="text-info">{% widthratio word_count 200 1 %} min</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                                        <h6>Risk Level</h6>
+                                        <h4 class="{% if ai_detection.risk_level == 'Very High' or ai_detection.risk_level == 'High' %}text-danger{% elif ai_detection.risk_level == 'Medium' %}text-warning{% else %}text-success{% endif %}">
+                                            {{ ai_detection.risk_level|default:"Low" }}
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Analysis -->
+                        <div class="row mb-4">
+                            <!-- AI Detection Results -->
+                            {% if ai_detection %}
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header bg-{% if ai_detection.is_ai_generated %}danger{% else %}success{% endif %} text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-robot"></i> AI Content Analysis 
+                                            {% if ai_detection.ml_score %}<span class="badge bg-light text-dark">ML-Powered</span>{% endif %}
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center mb-3">
+                                            <div class="display-1 {% if ai_detection.is_ai_generated %}text-danger{% else %}text-success{% endif %}">
+                                                {% if ai_detection.is_ai_generated %}⚠️{% else %}✅{% endif %}
+                                            </div>
+                                            <h4 class="{% if ai_detection.is_ai_generated %}text-danger{% else %}text-success{% endif %}">
+                                                {{ ai_detection.confidence|floatformat:0|default:"0" }}% Confidence
+                                            </h4>
+                                            {% if ai_detection.ml_score %}
+                                            <small class="text-muted">ML Score: {{ ai_detection.ml_score|floatformat:3 }}</small>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if ai_detection.feature_analysis %}
+                                        <h6><i class="fas fa-chart-bar"></i> ML Feature Analysis:</h6>
+                                        <div class="mb-3">
+                                            {% for feature, data in ai_detection.feature_analysis.items %}
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small>{{ feature|capfirst }}:</small>
+                                                <div class="progress" style="width: 60%; height: 15px;">
+                                                    <div class="progress-bar" style="width: {{ data.value|floatformat:1 }}0%"></div>
+                                                </div>
+                                                <small>{{ data.value|floatformat:2 }}</small>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if ai_detection.indicators %}
+                                        <h6><i class="fas fa-exclamation-triangle"></i> Detection Indicators:</h6>
+                                        <div class="list-group list-group-flush">
+                                            {% for indicator in ai_detection.indicators %}
+                                            <div class="list-group-item border-0 px-0">
+                                                <i class="fas fa-chevron-right text-muted me-2"></i>{{ indicator }}
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-check-circle"></i> No AI indicators detected. Content appears to be human-written.
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Enhanced Plagiarism Analysis -->
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header bg-{% if plagiarism_score >= 30 %}danger{% elif plagiarism_score >= 15 %}warning{% else %}success{% endif %} text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-search"></i> Plagiarism Analysis
+                                            {% if analysis.plagiarism.database_matches %}<span class="badge bg-light text-dark">DB+Web</span>{% endif %}
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center mb-3">
+                                            <div class="display-1 {% if plagiarism_score >= 30 %}text-danger{% elif plagiarism_score >= 15 %}text-warning{% else %}text-success{% endif %}">
+                                                {% if plagiarism_score >= 30 %}⚠️{% elif plagiarism_score >= 15 %}⚠️{% else %}✅{% endif %}
+                                            </div>
+                                            <h4 class="{% if plagiarism_score >= 30 %}text-danger{% elif plagiarism_score >= 15 %}text-warning{% else %}text-success{% endif %}">
+                                                {{ plagiarism_score|floatformat:0|default:"0" }}% Similarity
+                                            </h4>
+                                        </div>
+                                        
+                                        {% if analysis.plagiarism.sources %}
+                                        <h6><i class="fas fa-link"></i> Sources Found:</h6>
+                                        <div class="mb-3">
+                                            {% for source in analysis.plagiarism.sources %}
+                                            <span class="badge bg-warning text-dark me-1">{{ source }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if analysis.plagiarism.database_matches %}
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-database"></i> 
+                                            {{ analysis.plagiarism.database_matches|length }} database matches found
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if analysis.plagiarism.internet_matches %}
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-globe"></i> 
+                                            {{ analysis.plagiarism.internet_matches|length }} potential web matches found
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="alert {% if plagiarism_score >= 30 %}alert-danger{% elif plagiarism_score >= 15 %}alert-warning{% else %}alert-success{% endif %}">
+                                            <i class="fas fa-info-circle"></i>
+                                            {% if plagiarism_score >= 30 %}
+                                                High similarity detected. Review content for potential plagiarism.
+                                            {% elif plagiarism_score >= 15 %}
+                                                Moderate similarity found. Check for proper citations.
+                                            {% else %}
+                                                Content appears original with low similarity to known sources.
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <small class="text-muted">
+                                            <i class="fas fa-lightbulb"></i> 
+                                            Enhanced with database and web checking for comprehensive analysis.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Document Preview -->
+                        {% if text %}
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">📄 Document Preview</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="border p-3" style="max-height: 300px; overflow-y: auto; background-color: #f8f9fa;">
+                                    <pre style="white-space: pre-wrap; font-family: inherit;">{{ text|truncatechars:2000 }}</pre>
+                                </div>
+                                {% if text|length > 2000 %}
+                                <small class="text-muted">Preview limited to first 2000 characters</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Actions -->
+                        <div class="mt-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="mb-3">What's Next?</h5>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'plag:checkplagiarism' %}" class="btn btn-primary">
+                                            <i class="fas fa-redo"></i> Analyze Another Document
+                                        </a>
+                                        <a href="{% url 'plag:listen' %}" class="btn btn-outline-info">
+                                            <i class="fas fa-headphones"></i> Listen to Text
+                                        </a>
+                                        <a href="{% url 'plag:dashboard' %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-home"></i> Dashboard
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

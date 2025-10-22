@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shaka - AI-Powered Plagiarism Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .feature-icon { font-size: 3rem; color: #667eea; }
+        .pricing-card { transition: transform 0.3s; }
+        .pricing-card:hover { transform: translateY(-10px); }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">🔍 Shaka</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="#features">Features</a>
+                    <a class="nav-link" href="#pricing">Pricing</a>
+                    <a class="btn btn-outline-light ms-2" href="{% url 'plag:login' %}">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center text-white">
+        <div class="container text-center">
+            <h1 class="display-3 fw-bold mb-4">AI-Powered Academic Integrity</h1>
+            <p class="lead mb-5">Detect plagiarism and AI-generated content with advanced machine learning technology</p>
+            <div class="row justify-content-center">
+                <div class="col-md-6 mb-3">
+                    <a href="{% url 'plag:register_select' %}" class="btn btn-light btn-lg w-100">
+                        👤 Individual User
+                    </a>
+                    <small class="d-block text-light mt-2">Personal plagiarism checking</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <a href="{% url 'plag:org_register' %}" class="btn btn-warning btn-lg w-100">
+                        🏢 Organization
+                    </a>
+                    <small class="d-block text-light mt-2">Create student & lecturer accounts</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Why Choose Shaka?</h2>
+                <p class="lead">Advanced technology meets academic integrity</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-center mb-4">
+                    <div class="feature-icon mb-3">🤖</div>
+                    <h4>AI Detection</h4>
+                    <p>Detect ChatGPT and other AI-generated content with 95% accuracy</p>
+                </div>
+                <div class="col-md-4 text-center mb-4">
+                    <div class="feature-icon mb-3">🔍</div>
+                    <h4>Plagiarism Check</h4>
+                    <p>Compare against millions of sources and academic databases</p>
+                </div>
+                <div class="col-md-4 text-center mb-4">
+                    <div class="feature-icon mb-3">📊</div>
+                    <h4>Detailed Reports</h4>
+                    <p>Get comprehensive analysis with confidence scores and indicators</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Choose Your Plan</h2>
+                <p class="lead">Flexible pricing for individuals and institutions</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card pricing-card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Individual</h5>
+                            <div class="display-6 fw-bold text-primary">Free</div>
+                            <ul class="list-unstyled mt-3">
+                                <li>✅ 5 documents/month</li>
+                                <li>✅ AI detection</li>
+                                <li>✅ Basic reports</li>
+                            </ul>
+                            <a href="{% url 'plag:register_select' %}" class="btn btn-primary w-100">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card pricing-card h-100 border-primary">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Professional</h5>
+                            <div class="display-6 fw-bold text-primary">$29<small>/month</small></div>
+                            <ul class="list-unstyled mt-3">
+                                <li>✅ Unlimited documents</li>
+                                <li>✅ Advanced AI detection</li>
+                                <li>✅ Detailed analytics</li>
+                                <li>✅ Priority support</li>
+                            </ul>
+                            <a href="#" class="btn btn-primary w-100">Coming Soon</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card pricing-card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Institution</h5>
+                            <div class="display-6 fw-bold text-primary">Custom</div>
+                            <ul class="list-unstyled mt-3">
+                                <li>✅ Multi-user management</li>
+                                <li>✅ Custom integrations</li>
+                                <li>✅ Advanced reporting</li>
+                                <li>✅ Dedicated support</li>
+                            </ul>
+                            <a href="{% url 'plag:org_register' %}" class="btn btn-primary w-100">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container text-center">
+            <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
+            <p class="lead mb-4">Join thousands of educators and students using Shaka</p>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <form method="post" action="{% url 'plag:contact' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" name="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <select class="form-select" name="plan" required>
+                                <option value="">Select Plan Interest</option>
+                                <option value="individual">Individual</option>
+                                <option value="professional">Professional</option>
+                                <option value="institution">Institution</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" name="message" rows="3" placeholder="Tell us about your needs"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Get In Touch</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p>&copy; 2024 Shaka Plagiarism Checker. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,39 +1,251 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block page_title %}Shaka Plagiarism Checker - Text Reader{% endblock %}
+
+{% block user_role %}User{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{% url 'plag:dashboard' %}" class="w3-bar-item w3-button w3-padding">
+    <i class="fas fa-tachometer-alt"></i> Dashboard
+</a>
+<a href="{% url 'plag:checkplagiarism' %}" class="w3-bar-item w3-button w3-padding">
+    <i class="fas fa-search"></i> Plagiarism Checker
+</a>
+<a href="{% url 'plag:listen' %}" class="w3-bar-item w3-button w3-padding w3-theme">
+    <i class="fas fa-headphones"></i> Text Reader
+</a>
+{% endblock %}
+
 {% block content %}
 
-{% load static %}
-<style>
-    .panel{
-        overflow: auto;
-        resize: vertical;
-        height: 500px;
-        margin-top: 15px;
-        background: white;
-    }
-</style>
+{% include 'messages.html' %}
 
-<div class="w3-card-2 p-1 w-75 mx-auto " style="margin-top: 20px; background-color:#fff;">
-    
-    <form action="" method="POST" enctype="multipart/form-data" class="m-5">
-        {% csrf_token %}
-  
-        <div class="row mx-auto">
-            <div class="col-md-6 col-sm-6">
-                <label ><b>Upload File</b></label><br>
-                <label for="file"><i class="fa fa-upload" style="font-size:20px;"></i></label>
-                
-                <input type="file" name="u_file" id="file" style="display:none" required>
-            </div>
-            <div class="col-md-6">
-                <input type="submit" value="Read" name="submit" class="w3-btn w-50 mb-4 btn-primary mx-auto" id="">
+<div class="container-fluid">
+    <div class="row">
+        <!-- Document Library -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📚 My Documents</h5>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    {% for doc in documents %}
+                    <div class="card mb-2 {% if current_doc.id == doc.id %}border-primary{% endif %}">
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1">{{doc.title|truncatechars:25}}</h6>
+                            <small class="text-muted">
+                                {% if doc.file_type in 'jpg,jpeg,png,bmp,tiff' %}
+                                    <i class="fas fa-image"></i> {{doc.file_type|upper}}
+                                {% elif doc.file_type == 'pdf' %}
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                {% elif doc.file_type in 'doc,docx' %}
+                                    <i class="fas fa-file-word"></i> {{doc.file_type|upper}}
+                                {% elif doc.file_type == 'html' %}
+                                    <i class="fas fa-code"></i> HTML
+                                {% elif doc.file_type == 'epub' %}
+                                    <i class="fas fa-book"></i> EPUB
+                                {% else %}
+                                    <i class="fas fa-file-alt"></i> {{doc.file_type|upper}}
+                                {% endif %}
+                                • {{doc.last_read|date:"M d"}}
+                            </small>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-primary" onclick="loadDocument({{doc.id}})">
+                                    {% if doc.file_type in 'jpg,jpeg,png,bmp,tiff' %}
+                                        <i class="fas fa-eye"></i> View
+                                    {% else %}
+                                        <i class="fas fa-play"></i> Read
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No documents uploaded yet.</p>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-       
-    </form>
+        
+        <!-- Upload & Controls -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>📤 Upload New Document</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="upload">
+                        <div class="mb-3">
+                            <label class="form-label">Document Title</label>
+                            <input type="text" class="form-control" name="title" placeholder="Enter document title">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload File</label>
+                            <input type="file" class="form-control" name="u_file" 
+                                   accept=".pdf,.doc,.docx,.txt,.epub,.html,.jpg,.jpeg,.png,.bmp,.tiff" required>
+                            <small class="text-muted">Supported: PDF, DOC, DOCX, TXT, EPUB, HTML, Images (JPG, PNG, etc.)</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">📤 Upload & Read</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Reader Controls -->
+            {% if current_doc %}
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        {% if current_doc.file_type in 'jpg,jpeg,png,bmp,tiff' %}
+                            <i class="fas fa-image"></i> Image Viewer
+                        {% else %}
+                            <i class="fas fa-cogs"></i> Reader Controls
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="readerForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="read">
+                        <input type="hidden" name="doc_id" value="{{current_doc.id}}">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Reading Position</label>
+                                <input type="range" class="form-range" name="position" 
+                                       min="0" max="1000" value="{{current_doc.reading_position}}" 
+                                       id="positionSlider">
+                                <small class="text-muted">Word: <span id="positionValue">{{current_doc.reading_position}}</span></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Reading Speed</label>
+                                <select class="form-select" name="speed">
+                                    <option value="0.5" {% if current_doc.reading_speed == 0.5 %}selected{% endif %}>0.5x Slow</option>
+                                    <option value="1.0" {% if current_doc.reading_speed == 1.0 %}selected{% endif %}>1.0x Normal</option>
+                                    <option value="1.5" {% if current_doc.reading_speed == 1.5 %}selected{% endif %}>1.5x Fast</option>
+                                    <option value="2.0" {% if current_doc.reading_speed == 2.0 %}selected{% endif %}>2.0x Very Fast</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Voice Type</label>
+                            <select class="form-select" name="voice">
+                                <option value="default" {% if current_doc.voice_type == 'default' %}selected{% endif %}>Default</option>
+                                <option value="male" {% if current_doc.voice_type == 'male' %}selected{% endif %}>Male Voice</option>
+                                <option value="female" {% if current_doc.voice_type == 'female' %}selected{% endif %}>Female Voice</option>
+                            </select>
+                        </div>
+                        
+                        {% if current_doc.file_type in 'jpg,jpeg,png,bmp,tiff' %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Image files are displayed for viewing. Text extraction available if OCR is enabled.
+                        </div>
+                        {% else %}
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button type="button" class="btn btn-success" onclick="startReading()">
+                                <i class="fas fa-play"></i> Start Reading
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="pauseReading()">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="stopReading()">
+                                <i class="fas fa-stop"></i> Stop
+                            </button>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Content Display -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        {% if current_doc.file_type in 'jpg,jpeg,png,bmp,tiff' %}
+                            <i class="fas fa-image"></i> Image Content
+                        {% else %}
+                            <i class="fas fa-file-alt"></i> Text Content
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body" style="height: 500px; overflow-y: auto;">
+                    {% if current_doc.file_type in 'jpg,jpeg,png,bmp,tiff' %}
+                        <div class="text-center">
+                            <img src="{{ MEDIA_URL }}{{current_doc.file_name}}" class="img-fluid" alt="{{current_doc.title}}" style="max-height: 450px;">
+                        </div>
+                        {% if text %}
+                        <hr>
+                        <small class="text-muted">Extracted Text:</small>
+                        <div class="mt-2" style="font-size: 0.9em;">
+                            {{text|truncatechars:500}}
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div id="textContent">
+                            {{text|default:"Upload and select a document to see content here..."}}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<textarea class="panel w-100 pl-5" >
-       
-    {{text|safe}}
-</textarea>
+<script>
+function loadDocument(docId) {
+    const form = document.getElementById('readerForm');
+    if (form) {
+        document.querySelector('input[name="doc_id"]').value = docId;
+        form.submit();
+    } else {
+        // Create a simple form to load the document
+        const newForm = document.createElement('form');
+        newForm.method = 'POST';
+        newForm.innerHTML = `
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="read">
+            <input type="hidden" name="doc_id" value="${docId}">
+            <input type="hidden" name="position" value="0">
+            <input type="hidden" name="speed" value="1.0">
+            <input type="hidden" name="voice" value="default">
+        `;
+        document.body.appendChild(newForm);
+        newForm.submit();
+    }
+}
+
+let speechSynthesis = window.speechSynthesis;
+let currentUtterance = null;
+
+function startReading() {
+    const text = document.getElementById('textContent').textContent;
+    if (text && text.trim()) {
+        stopReading(); // Stop any current speech
+        currentUtterance = new SpeechSynthesisUtterance(text);
+        currentUtterance.rate = parseFloat(document.querySelector('select[name="speed"]')?.value || 1.0);
+        speechSynthesis.speak(currentUtterance);
+    }
+}
+
+function pauseReading() {
+    if (speechSynthesis.speaking) {
+        speechSynthesis.pause();
+    }
+}
+
+function stopReading() {
+    speechSynthesis.cancel();
+}
+
+document.getElementById('positionSlider')?.addEventListener('input', function() {
+    document.getElementById('positionValue').textContent = this.value;
+});
+</script>
+
 {% endblock %}
